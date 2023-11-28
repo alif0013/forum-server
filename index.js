@@ -27,8 +27,17 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         //creat databse file name
+        const usersCollection = client.db('forumDB').collection('users');
         const postsCollection = client.db('forumDB').collection('posts');
 
+        //user related api 
+        app.post('/users', async (req, res) =>{
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result)
+        })
+
+        //post related api 
         // get posts data to the database
         app.get('/posts', async (req, res) => {
             const result = await postsCollection.find().toArray();
