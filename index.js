@@ -29,21 +29,30 @@ async function run() {
         //creat databse file name
         const postsCollection = client.db('forumDB').collection('posts');
 
-         // get posts data to the database
-         app.get('/posts', async (req, res) => {
+        // get posts data to the database
+        app.get('/posts', async (req, res) => {
             const result = await postsCollection.find().toArray();
             res.send(result)
         })
 
-          // find a single data 
-        //   app.get('/posts/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) }
-        //     const result = await postsCollection.findOne(query)
-        //     res.send(result)
-        // })
+        app.get('/my-posts', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const result = await postsCollection.find(query).toArray();
+            res.send(result)
+        })
 
-     // Add post to the database
+
+
+        // find a single data 
+        app.get('/posts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await postsCollection.findOne(query)
+            res.send(result)
+        })
+
+        // Add post to the database
         app.post('/posts', async (req, res) => {
             const newPost = req.body;
             // console.log(newAsignment);
@@ -51,7 +60,14 @@ async function run() {
             res.send(result)
         })
 
-
+        // delet a asignment by delete operation
+        app.delete('/posts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            // const query = {_id: id}
+            const result = await postsCollection.deleteOne(query)
+            res.send(result)
+        })
 
 
 
