@@ -30,27 +30,28 @@ async function run() {
         //creat databse file name
         const usersCollection = client.db('forumDB').collection('users');
         const postsCollection = client.db('forumDB').collection('posts');
+        const commentsCollection = client.db('forumDB').collection('comments');
 
 
         //jwt related api 
-        app.post('/jwt', async (req, res) =>{
+        app.post('/jwt', async (req, res) => {
             const user = req.body;
-           const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'});
-            res.send({token});
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ token });
 
         })
 
         //middle ware jwt
-        const verifyToken = (req, res, next) =>{
+        const verifyToken = (req, res, next) => {
             const authHeader = req?.headers?.authorization;
             // console.log('inside verify token', req.headers.authorization);
-            if(!authHeader){
-                return res.status(401).send({message: 'forbidded access'})
+            if (!authHeader) {
+                return res.status(401).send({ message: 'forbidded access' })
             }
             const token = authHeader.split(' ')[1];
-            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
-                if(err){
-                    return res.status(401).send({message: 'forbidden access'})
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: 'forbidden access' })
                 }
                 req.decoded = decoded;
                 next();
@@ -62,59 +63,77 @@ async function run() {
             const email = req.decoded.email;
             const query = { email: email };
             const user = await usersCollection.findOne(query);
-          
+
             if (user?.role !== 'admin') {
-              res.status(403).send({ message: 'Forbidden Access' })
+                res.status(403).send({ message: 'Forbidden Access' })
             }
             next()
-          }
+        }
 
 
         //user related api 
-        app.get('/users', verifyToken, verifyAdmin,  async (req, res) => {
+        app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result)
         })
 
-        app.get('/users/admin/:email', verifyToken, async (req, res) =>{
+        app.get('/users/admin/:email', verifyToken, async (req, res) => {
             const email = req?.params?.email;
             // if(email !== req?.decoded?.email){
             //     return res.status(403).send({message: 'unauthorized access'})
             // }
 
-            const query = {email: email}
+            const query = { email: email }
             const user = await usersCollection.findOne(query);
             let admin = false;
-            if(user){
+            if (user) {
                 admin = user?.role === "admin";
             }
 
-            res.send({admin});
+            res.send({ admin });
 
         })
 
 
+        //make vote route
+
+        // app.patch('/users/vote/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: new ObjectId(id) }
+        //     const updateDoc = {
+        //         $set: {
+        //             upvote: "1"
+        //         }
+        //     }
+        //     const result = await usersCollection.updateOne(filter, updateDoc)
+        //     res.send(result)
+        // })
 
 
-        app.patch('/users/admin/:id', async (req, res) =>{
+
+        //make admin to update admin role
+        app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updateDoc = {
                 $set: {
-                    role : 'admin'
+                    role: 'admin'
                 }
             }
             const result = await usersCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
 
-        app.post('/users', async (req, res) =>{
+        app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
             res.send(result)
         })
 
+
+
         //post related api 
+
         // get posts data to the database
         app.get('/posts', async (req, res) => {
             const result = await postsCollection.find().toArray();
@@ -145,6 +164,26 @@ async function run() {
             const result = await postsCollection.insertOne(newPost)
             res.send(result)
         })
+
+
+        //comment related api start
+       
+        app.get('/comments', async (req, res) => {
+            const result = await commentsCollection.find().toArray();
+            res.send(result)
+        })
+       
+
+        app.post('/comments', async (req, res) => {
+            const newComments = req.body;
+            // console.log(newAsignment);
+            const result = await commentsCollection.insertOne(newComments)
+            res.send(result)
+        })
+
+
+
+        //comment related api end
 
         // delet a asignment by delete operation
         app.delete('/posts/:id', async (req, res) => {
