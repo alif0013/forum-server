@@ -42,45 +42,45 @@ async function run() {
 
         //middle ware jwt
         const verifyToken = (req, res, next) =>{
-            console.log('inside verify token', req.headers.authorization);
-            if(!req.headers.authorization){
+            const authHeader = req?.headers?.authorization;
+            // console.log('inside verify token', req.headers.authorization);
+            if(!authHeader){
                 return res.status(401).send({message: 'forbidded access'})
             }
-            const token = req.headers.authorization.split(' ')[1];
+            const token = authHeader.split(' ')[1];
             jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
                 if(err){
                     return res.status(401).send({message: 'forbidden access'})
                 }
-                res.decoded = decoded;
+                req.decoded = decoded;
                 next();
             })
         }
 
-        //use verify admin after verify token
-        const verifyAdmin = async (req, res, next) =>{
+        //use verify admin after verify token .
+        const verifyAdmin = async (req, res, next) => {
             const email = req.decoded.email;
-            const query = {email: email};
+            const query = { email: email };
             const user = await usersCollection.findOne(query);
-            const isAdmin = user?.role === 'admin';
-
-            if(!isAdmin){
-                return res.status(403).send({message: 'forbidded access'})
+          
+            if (user?.role !== 'admin') {
+              res.status(403).send({ message: 'Forbidden Access' })
             }
-            next();
-        }
+            next()
+          }
 
 
         //user related api 
-        app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+        app.get('/users', verifyToken, verifyAdmin,  async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result)
         })
 
         app.get('/users/admin/:email', verifyToken, async (req, res) =>{
-            const email = req.params.email;
-            if(email !== req?.decoded?.email){
-                return res.status(403).send({message: 'unauthorized access'})
-            }
+            const email = req?.params?.email;
+            // if(email !== req?.decoded?.email){
+            //     return res.status(403).send({message: 'unauthorized access'})
+            // }
 
             const query = {email: email}
             const user = await usersCollection.findOne(query);
