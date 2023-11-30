@@ -97,17 +97,17 @@ async function run() {
 
         //make vote route
 
-        // app.patch('/users/vote/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: new ObjectId(id) }
-        //     const updateDoc = {
-        //         $set: {
-        //             upvote: "1"
-        //         }
-        //     }
-        //     const result = await usersCollection.updateOne(filter, updateDoc)
-        //     res.send(result)
-        // })
+        app.patch('/posts/vote/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    upvote: "1"
+                }
+            }
+            const result = await postsCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
 
 
 
@@ -174,10 +174,18 @@ async function run() {
         })
        
 
+        // app.get('/comments-details/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) }
+        //     const result = await commentsCollection.findOne(query)
+        //     res.send(result)
+        // })
+
+
         app.post('/comments', async (req, res) => {
-            const newComments = req.body;
+            const newComment = req.body;
             // console.log(newAsignment);
-            const result = await commentsCollection.insertOne(newComments)
+            const result = await commentsCollection.insertOne(newComment)
             res.send(result)
         })
 
