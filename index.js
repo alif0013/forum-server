@@ -31,6 +31,7 @@ async function run() {
         const usersCollection = client.db('forumDB').collection('users');
         const postsCollection = client.db('forumDB').collection('posts');
         const commentsCollection = client.db('forumDB').collection('comments');
+        const announcementCollection = client.db('forumDB').collection('announcement');
 
 
         //jwt related api 
@@ -167,12 +168,12 @@ async function run() {
 
 
         //comment related api start
-       
+
         app.get('/comments', async (req, res) => {
             const result = await commentsCollection.find().toArray();
             res.send(result)
         })
-       
+
 
         // app.get('/comments-details/:id', async (req, res) => {
         //     const id = req.params.id;
@@ -193,7 +194,27 @@ async function run() {
 
         //comment related api end
 
-        // delet a asignment by delete operation
+        //announcement related api start
+
+        app.get('/announcement', async (req, res) => {
+            const result = await announcementCollection.find().toArray();
+            res.send(result)
+        })
+
+        
+        app.post('/announcement', async (req, res) => {
+            const newAnnouncement = req.body;
+            // console.log(newAsignment);
+            const result = await announcementCollection.insertOne(newAnnouncement)
+            res.send(result)
+        })
+
+        //announcement related api end
+
+
+
+
+        // delete a post by delete operation
         app.delete('/posts/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
