@@ -102,8 +102,8 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updateDoc = {
-                $set: {
-                    upvote: "1"
+                $inc: {
+                    upvote: 1
                 }
             }
             const result = await postsCollection.updateOne(filter, updateDoc)
@@ -201,7 +201,7 @@ async function run() {
             res.send(result)
         })
 
-        
+
         app.post('/announcement', async (req, res) => {
             const newAnnouncement = req.body;
             // console.log(newAsignment);
