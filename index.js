@@ -31,6 +31,7 @@ async function run() {
         const usersCollection = client.db('forumDB').collection('users');
         const postsCollection = client.db('forumDB').collection('posts');
         const commentsCollection = client.db('forumDB').collection('comments');
+        const reportedCommentCollection = client.db('forumDB').collection('reported');
         const announcementCollection = client.db('forumDB').collection('announcement');
 
 
@@ -185,7 +186,7 @@ async function run() {
 
         app.post('/comments', async (req, res) => {
             const newComment = req.body;
-            // console.log(newAsignment);
+            // console.log(newComment);
             const result = await commentsCollection.insertOne(newComment)
             res.send(result)
         })
@@ -193,6 +194,24 @@ async function run() {
 
 
         //comment related api end
+
+
+        // Reported comment related api start
+
+        app.get('/reported', async (req, res) => {
+            const result = await reportedCommentCollection.find().toArray();
+            res.send(result)
+        })
+
+        app.post('/reported', async (req, res) => {
+            const newReport = req.body;
+            // console.log(newComment);
+            const result = await reportedCommentCollection.insertOne(newReport)
+            res.send(result)
+        })
+
+        // Reportedcomment related api end
+
 
         //announcement related api start
 
