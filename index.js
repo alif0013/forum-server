@@ -97,7 +97,7 @@ async function run() {
         })
 
 
-        //make vote route
+        //make vote api start
 
         app.patch('/posts/vote/:id', async (req, res) => {
             const id = req.params.id;
@@ -111,7 +111,20 @@ async function run() {
             res.send(result)
         })
 
+        app.patch('/posts/downVote/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $inc: {
+                    downvote: 1
+                }
+            }
+            const result = await postsCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
 
+
+        //make vote api end 
 
         //make admin to update admin role
         app.patch('/users/admin/:id', async (req, res) => {
@@ -243,6 +256,14 @@ async function run() {
         })
 
 
+        //reported comment delete 
+        app.delete('/reported/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            // const query = {_id: id}
+            const result = await reportedCommentCollection.deleteOne(query)
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
